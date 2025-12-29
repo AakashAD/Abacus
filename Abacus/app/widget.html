@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SALES ORDER</title>
+  <link rel="stylesheet" href="main.css" />
+	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
+</head>
+<body>
+
+<div class="page">
+  <div class="form">
+
+    <!-- CUSTOMER -->
+    <div class="row">
+      <label class="required">Customer Name</label>
+      <div class="field field-full">
+        <select></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <label class="required">Contact Person</label>
+      <div class="field field-full">
+        <select></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Location</label>
+      <div class="field field-half">
+        <select></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <label class="required">Sales Order #</label>
+      <div class="field field-half">
+        <input value="SO-00002">
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Reference #</label>
+      <div class="field field-half">
+        <input>
+      </div>
+    </div>
+
+    <div class="row">
+      <label class="required">Sales Order Date</label>
+      <div class="field field-half">
+        <input type="date">
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Expected Shipment Date</label>
+      <div class="field field-half">
+        <input type="date">
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Payment Terms</label>
+      <div class="field field-half">
+        <select></select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <label>Delivery Method</label>
+      <div class="field field-half">
+        <select></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Warehouse Location</label>
+      <div class="field field-half warehouse">
+        <select></select>
+      </div>
+    </div>
+
+    <!-- ITEMS -->
+    <table class="items">
+      <thead>
+        <tr>
+          <th>ITEM DETAILS</th>
+          <th>QTY</th>
+          <th>RATE</th>
+          <th>DISC %</th>
+          <th>AMOUNT</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <input class="item-name" placeholder="Select item">
+            <textarea placeholder="Description"></textarea>
+          </td>
+          <td><input value="1"></td>
+          <td><input value="0"></td>
+          <td><input value="0"></td>
+          <td class="amount">0.00</td>
+          <td class="delete">✕</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="item-actions">
+      <button type="button">+ Add New Row</button>
+    </div>
+
+    <!-- NOTES + TOTAL -->
+    <div class="notes-totals">
+      <textarea placeholder="Customer Notes"></textarea>
+
+      <div class="totals">
+        <div><span >Sub Total</span><span id="subTotal">0.00</span></div>
+        <div><span>Shipping</span><input type="number" id="shipping" value="" step="0.01"></div>
+        <div><span>Adjustment</span><input type="number" id="adjustment" value="" step="0.01"></div>
+        <hr>
+        <div class="grand"><span>Total</span><span id="grandTotal">0.00</span></div>
+      </div>
+    </div>
+    <!-- FOOTER -->
+    <div class="footer">
+      <button class="secondary">Save as Draft</button>
+      <button class="primary">Save and Send</button>
+      <button class="ghost">Cancel</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="main.js"></script>
+<script>
+	window.onload = function () {
+
+		ZFAPPS.extension.init().then(function (App) {
+
+		 //Get invoice data
+ 		 ZFAPPS.get('contact').then(function (res) {
+ 					//response Handling
+ 		 }).catch(function (err) {
+ 					//error Handling
+
+ 		 });
+ 		/*
+				//To Set data in inventory app UI client
+				ZFAPPS.set('invoice.reference_number', 'REF-001').then(function (res) {
+					//response Handling
+				}).catch(function (err) {
+					//error Handling
+				});
+
+				//To resize the frame size
+				ZFAPPS.invoke('RESIZE', { width: '100px', height: '100px'}).then(function (res) {
+					//response Handling
+				}).catch(function (err) {
+					//error Handling
+				});
+
+				//To refresh the inventory app invoice data
+				ZFAPPS.invoke('REFRESH_DATA', 'invoice').then(function (res) {
+					//response Handling
+				}).catch(function (err) {
+					//error Handling
+				});
+
+
+				//To listen inventory app event
+				App.instance.on('ON_INVOICE_CHANGE', function(data){
+					//data handling
+				});
+
+
+				//To Know more on these, please read the documentation
+ 					*/
+ 		});
+
+	};
+</script>
+
+	<script src="./js/extension.js" charset="utf-8"></script>
+
+
+</body>
+</html>

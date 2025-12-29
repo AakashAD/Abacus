@@ -1,0 +1,18 @@
+{
+  "locale": ["en"],
+  "service": "INVENTORY",
+  "whiteListedDomains": [
+],
+  "modules": {
+    "widgets": [
+      {
+        "location": "webtab",
+        "name": "SALES ORDER",
+        "url": "/app/widget.html",
+        "logo": "/app/img/zoho-inventory.png"
+      }
+    ]
+  },
+  "config": [],
+  "usedConnections": []
+}

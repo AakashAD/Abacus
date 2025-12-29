@@ -1,0 +1,185 @@
+body {
+  margin: 0;
+  background: #f8f9fb;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.page {
+  padding: 24px;
+  max-width: 1200px;
+}
+
+.form {
+  max-width: 1100px;
+}
+
+/* ROWS */
+.row {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  margin-bottom: 14px;
+  align-items: center;
+}
+
+label {
+  font-size: 13px;
+}
+
+label.required::after {
+  content: " *";
+  color: #dc2626;
+}
+
+.field {
+  width: 100%;
+}
+
+.field-full {
+  max-width: 600px;
+}
+
+.field-half {
+  max-width: 360px;
+}
+
+.field-half.warehouse {
+  max-width: 150px;
+}
+
+/* INPUTS */
+input, select, textarea {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+textarea {
+  height: 70px;
+  padding: 8px 12px;
+  resize: none;
+}
+
+/* DIVIDER */
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 20px 0;
+}
+
+/* ITEMS TABLE */
+.items {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+
+.items th {
+  background: #f3f4f6;
+  font-size: 12px;
+  padding: 8px;
+}
+
+.items td {
+  padding: 6px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.items textarea {
+  height: 40px;
+}
+
+.amount {
+  padding-top: 8px;
+}
+
+.delete {
+  color: #dc2626;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* ACTIONS */
+.item-actions {
+  margin: 12px 0;
+}
+
+.item-actions button {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+}
+
+/* NOTES + TOTALS */
+.notes-totals {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.notes-totals textarea {
+  width: 60%;
+}
+
+.totals {
+  width: 40%;
+  background: #f3f4f6;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.totals div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.totals input {
+  width: 100px;
+}
+
+.grand {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* FOOTER */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+}
+
+.primary {
+  background: #22a06b;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.secondary {
+  background: #e5e7eb;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.ghost {
+  background: transparent;
+  border: none;
+}
+
+/* Remove number spinners completely */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
