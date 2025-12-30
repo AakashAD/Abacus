@@ -18,8 +18,9 @@
 
     <div class="row">
       <label class="required">Contact Person</label>
-      <!-- ✅ ID ADDED -->
-      <select id="contactSelect"></select>
+      <select id="contactSelect">
+        <option value="" selected disabled>Select Contact</option>
+      </select>
     </div>
 
     <div class="footer">
@@ -37,7 +38,9 @@ function populateContactsFromAPI(contactPersons) {
   const select = document.getElementById("contactSelect");
   if (!select || !Array.isArray(contactPersons)) return;
 
-  select.innerHTML = `<option value="">Select Contact</option>`;
+  select.innerHTML = `
+    <option value="" selected disabled>Select Contact</option>
+  `;
 
   contactPersons.forEach(cp => {
     const firstName = cp.first_name || "";
@@ -50,40 +53,106 @@ function populateContactsFromAPI(contactPersons) {
     if (!label) return;
 
     const option = document.createElement("option");
-    option.value = cp.contact_person_id; // IMPORTANT
+    option.value = cp.contact_person_id;
     option.textContent = label;
-
-    // Auto-select primary contact
-    if (cp.is_primary_contact === true) {
-      option.selected = true;
-    }
 
     select.appendChild(option);
   });
 }
 
 /****************************
+ * UPDATE SALES ORDER (FIXED)
+ ****************************/
+function updateSalesOrder(
+  salesOrderId,
+  orgId,
+  contactPersonId,
+  contactPersonName
+) {
+  const payload = {
+    custom_fields: [
+      {
+        api_name: "cf_contact_person_id",
+        value: contactPersonId
+      },
+      {
+        api_name: "cf_contact_person_name",
+        value: contactPersonName
+      }
+    ]
+  };
+
+  const options = {
+    url: "https://www.zohoapis.com/inventory/v1/salesorders/" + salesOrderId,
+    method: "PUT",
+    url_query: [
+      {
+        key: "organization_id",
+        value: orgId
+      }
+    ],
+    headers: [
+      {
+        key: "Content-Type",
+        value: "application/json"
+      }
+    ],
+    body: {
+      mode: "raw",
+      raw: JSON.stringify(payload)
+    },
+    connection_link_name: "zoho_inventory_widget"
+  };
+
+  console.log("PUT Payload:", payload);
+
+  ZFAPPS.request(options)
+    .then(function (response) {
+      if (!response?.data?.body) {
+        alert("Update failed");
+        return;
+      }
+
+      const result = JSON.parse(response.data.body);
+      console.log("Sales Order Update Response:", result);
+
+      if (result.code === 0) {
+        alert("Contact Person updated successfully");
+      } else {
+        alert("Update failed: " + result.message);
+      }
+    })
+    .catch(function (err) {
+      console.error("Update Error:", err);
+      alert("Failed to update Sales Order");
+    });
+}
+
+/****************************
  * ASSOCIATE BUTTON
  ****************************/
-function bindAssociateButton() {
+function bindAssociateButton(salesOrderId, orgId) {
   const btn = document.querySelector(".primary");
   const select = document.getElementById("contactSelect");
 
   if (!btn || !select) return;
 
   btn.addEventListener("click", () => {
-    if (!select.value) {
+    const contactPersonId = select.value;
+    const contactPersonName =
+      select.options[select.selectedIndex]?.text;
+
+    if (!contactPersonId) {
       alert("Please select a contact person");
       return;
     }
 
-    console.log("Selected Contact Person ID:", select.value);
-    console.log(
-      "Selected Contact Label:",
-      select.options[select.selectedIndex].text
+    updateSalesOrder(
+      salesOrderId,
+      orgId,
+      contactPersonId,
+      contactPersonName
     );
-
-    // 👉 NEXT: Associate this contact_person_id
   });
 }
 
@@ -94,26 +163,26 @@ window.onload = function () {
 
   ZFAPPS.extension.init().then(function () {
 
-    bindAssociateButton();
-
-    // 1️⃣ Get Sales Order context
     ZFAPPS.get("salesorder")
       .then(function ({ salesorder }) {
 
-        console.log("Sales Order Data:", salesorder);
+        const salesOrderId = salesorder.salesorder_id;
+        const customerId   = salesorder.customer_id;
+        const orgId        = "881457739"; // replace with dynamic orgId if needed
 
-        const customerId = salesorder.customer_id;
-        console.log("Customer ID:", customerId);
+        bindAssociateButton(salesOrderId, orgId);
 
-        // 2️⃣ Contact Persons API
-        var options = {
-          url: "https://www.zohoapis.com/inventory/v1/contacts/" +
-                customerId + "/contactpersons",
+        // Contact Persons API
+        const options = {
+          url:
+            "https://www.zohoapis.com/inventory/v1/contacts/" +
+            customerId +
+            "/contactpersons",
           method: "GET",
           url_query: [
             {
               key: "organization_id",
-              value: "881457739"
+              value: orgId
             }
           ],
           headers: [
@@ -125,34 +194,24 @@ window.onload = function () {
           connection_link_name: "zoho_inventory_widget"
         };
 
-        // 3️⃣ API Call
         ZFAPPS.request(options)
           .then(function (response) {
+            if (!response?.data?.body) return;
 
-            if (!response?.data?.body) {
-              console.error("Empty API response", response);
-              return;
-            }
-
-            let responseJSON = JSON.parse(response.data.body);
-            console.log("Contact Persons API Response:", responseJSON);
-
-            // ✅ POPULATE DROPDOWN HERE
+            const responseJSON = JSON.parse(response.data.body);
             populateContactsFromAPI(responseJSON.contact_persons);
-
           })
           .catch(function (err) {
-            console.error("API Error:", err);
+            console.error("Contact API Error:", err);
           });
 
       })
       .catch(function (err) {
-        console.error("Error fetching Sales Order data:", err);
+        console.error("Sales Order Fetch Error:", err);
       });
 
-    // Resize widget
     ZFAPPS.invoke("RESIZE", {
-      height: "200px",
+      height: "220px",
       width: "500px"
     });
 

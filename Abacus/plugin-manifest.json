@@ -24,13 +24,14 @@
 	"isUserDefinedService": false,
 	"sharedBy": "881457739",
 	"scope": [
-		"ZohoInventory.contacts.CREATE",
+			"ZohoInventory.contacts.CREATE",
 		"ZohoInventory.contacts.UPDATE",
 		"ZohoInventory.contacts.READ",
 		"ZohoInventory.items.CREATE",
 		"ZohoInventory.items.UPDATE",
 		"ZohoInventory.items.READ",
 		"ZohoInventory.salesorders.CREATE",
+		"ZohoInventory.salesorders.UPDATE",
 		"ZohoInventory.salesorders.READ"
 	]
 }
