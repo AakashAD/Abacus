@@ -1,193 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>SALES ORDER</title>
-  <link rel="stylesheet" href="main.css" />
-	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
+  <meta charset="UTF-8">
+  <title>Customer Relationship</title>
+
+  <!-- Zoho SDK -->
+  <script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="main.css">
 </head>
+
 <body>
 
 <div class="page">
   <div class="form">
 
-    <!-- CUSTOMER -->
-    <div class="row">
-      <label class="required">Customer Name</label>
-      <div class="field field-full">
-        <select></select>
-      </div>
-    </div>
-
     <div class="row">
       <label class="required">Contact Person</label>
-      <div class="field field-full">
-        <select></select>
-      </div>
+      <!-- ✅ ID ADDED -->
+      <select id="contactSelect"></select>
     </div>
 
-    <div class="row">
-      <label>Location</label>
-      <div class="field field-half">
-        <select></select>
-      </div>
-    </div>
-
-    <div class="row">
-      <label class="required">Sales Order #</label>
-      <div class="field field-half">
-        <input value="SO-00002">
-      </div>
-    </div>
-
-    <div class="row">
-      <label>Reference #</label>
-      <div class="field field-half">
-        <input>
-      </div>
-    </div>
-
-    <div class="row">
-      <label class="required">Sales Order Date</label>
-      <div class="field field-half">
-        <input type="date">
-      </div>
-    </div>
-
-    <div class="row">
-      <label>Expected Shipment Date</label>
-      <div class="field field-half">
-        <input type="date">
-      </div>
-    </div>
-
-    <div class="row">
-      <label>Payment Terms</label>
-      <div class="field field-half">
-        <select></select>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="row">
-      <label>Delivery Method</label>
-      <div class="field field-half">
-        <select></select>
-      </div>
-    </div>
-
-    <div class="row">
-      <label>Warehouse Location</label>
-      <div class="field field-half warehouse">
-        <select></select>
-      </div>
-    </div>
-
-    <!-- ITEMS -->
-    <table class="items">
-      <thead>
-        <tr>
-          <th>ITEM DETAILS</th>
-          <th>QTY</th>
-          <th>RATE</th>
-          <th>DISC %</th>
-          <th>AMOUNT</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <input class="item-name" placeholder="Select item">
-            <textarea placeholder="Description"></textarea>
-          </td>
-          <td><input value="1"></td>
-          <td><input value="0"></td>
-          <td><input value="0"></td>
-          <td class="amount">0.00</td>
-          <td class="delete">✕</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="item-actions">
-      <button type="button">+ Add New Row</button>
-    </div>
-
-    <!-- NOTES + TOTAL -->
-    <div class="notes-totals">
-      <textarea placeholder="Customer Notes"></textarea>
-
-      <div class="totals">
-        <div><span >Sub Total</span><span id="subTotal">0.00</span></div>
-        <div><span>Shipping</span><input type="number" id="shipping" value="" step="0.01"></div>
-        <div><span>Adjustment</span><input type="number" id="adjustment" value="" step="0.01"></div>
-        <hr>
-        <div class="grand"><span>Total</span><span id="grandTotal">0.00</span></div>
-      </div>
-    </div>
-    <!-- FOOTER -->
     <div class="footer">
-      <button class="secondary">Save as Draft</button>
-      <button class="primary">Save and Send</button>
-      <button class="ghost">Cancel</button>
+      <button class="primary">Associate</button>
     </div>
 
   </div>
 </div>
 
-<script src="main.js"></script>
 <script>
-	window.onload = function () {
+/****************************
+ * POPULATE CONTACT DROPDOWN
+ ****************************/
+function populateContactsFromAPI(contactPersons) {
+  const select = document.getElementById("contactSelect");
+  if (!select || !Array.isArray(contactPersons)) return;
 
-		ZFAPPS.extension.init().then(function (App) {
+  select.innerHTML = `<option value="">Select Contact</option>`;
 
-		 //Get invoice data
- 		 ZFAPPS.get('contact').then(function (res) {
- 					//response Handling
- 		 }).catch(function (err) {
- 					//error Handling
+  contactPersons.forEach(cp => {
+    const firstName = cp.first_name || "";
+    const lastName  = cp.last_name || "";
+    const email     = cp.email || "";
 
- 		 });
- 		/*
-				//To Set data in inventory app UI client
-				ZFAPPS.set('invoice.reference_number', 'REF-001').then(function (res) {
-					//response Handling
-				}).catch(function (err) {
-					//error Handling
-				});
+    let label = `${firstName} ${lastName}`.trim();
+    if (email) label += ` - ${email}`;
 
-				//To resize the frame size
-				ZFAPPS.invoke('RESIZE', { width: '100px', height: '100px'}).then(function (res) {
-					//response Handling
-				}).catch(function (err) {
-					//error Handling
-				});
+    if (!label) return;
 
-				//To refresh the inventory app invoice data
-				ZFAPPS.invoke('REFRESH_DATA', 'invoice').then(function (res) {
-					//response Handling
-				}).catch(function (err) {
-					//error Handling
-				});
+    const option = document.createElement("option");
+    option.value = cp.contact_person_id; // IMPORTANT
+    option.textContent = label;
 
+    // Auto-select primary contact
+    if (cp.is_primary_contact === true) {
+      option.selected = true;
+    }
 
-				//To listen inventory app event
-				App.instance.on('ON_INVOICE_CHANGE', function(data){
-					//data handling
-				});
+    select.appendChild(option);
+  });
+}
 
+/****************************
+ * ASSOCIATE BUTTON
+ ****************************/
+function bindAssociateButton() {
+  const btn = document.querySelector(".primary");
+  const select = document.getElementById("contactSelect");
 
-				//To Know more on these, please read the documentation
- 					*/
- 		});
+  if (!btn || !select) return;
 
-	};
+  btn.addEventListener("click", () => {
+    if (!select.value) {
+      alert("Please select a contact person");
+      return;
+    }
+
+    console.log("Selected Contact Person ID:", select.value);
+    console.log(
+      "Selected Contact Label:",
+      select.options[select.selectedIndex].text
+    );
+
+    // 👉 NEXT: Associate this contact_person_id
+  });
+}
+
+/****************************
+ * INIT
+ ****************************/
+window.onload = function () {
+
+  ZFAPPS.extension.init().then(function () {
+
+    bindAssociateButton();
+
+    // 1️⃣ Get Sales Order context
+    ZFAPPS.get("salesorder")
+      .then(function ({ salesorder }) {
+
+        console.log("Sales Order Data:", salesorder);
+
+        const customerId = salesorder.customer_id;
+        console.log("Customer ID:", customerId);
+
+        // 2️⃣ Contact Persons API
+        var options = {
+          url: "https://www.zohoapis.com/inventory/v1/contacts/" +
+                customerId + "/contactpersons",
+          method: "GET",
+          url_query: [
+            {
+              key: "organization_id",
+              value: "881457739"
+            }
+          ],
+          headers: [
+            {
+              key: "Accept",
+              value: "application/json"
+            }
+          ],
+          connection_link_name: "zoho_inventory_widget"
+        };
+
+        // 3️⃣ API Call
+        ZFAPPS.request(options)
+          .then(function (response) {
+
+            if (!response?.data?.body) {
+              console.error("Empty API response", response);
+              return;
+            }
+
+            let responseJSON = JSON.parse(response.data.body);
+            console.log("Contact Persons API Response:", responseJSON);
+
+            // ✅ POPULATE DROPDOWN HERE
+            populateContactsFromAPI(responseJSON.contact_persons);
+
+          })
+          .catch(function (err) {
+            console.error("API Error:", err);
+          });
+
+      })
+      .catch(function (err) {
+        console.error("Error fetching Sales Order data:", err);
+      });
+
+    // Resize widget
+    ZFAPPS.invoke("RESIZE", {
+      height: "200px",
+      width: "500px"
+    });
+
+  });
+};
 </script>
-
-	<script src="./js/extension.js" charset="utf-8"></script>
-
 
 </body>
 </html>

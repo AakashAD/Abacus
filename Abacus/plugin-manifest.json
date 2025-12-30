@@ -6,13 +6,33 @@
   "modules": {
     "widgets": [
       {
-        "location": "webtab",
-        "name": "SALES ORDER",
+        "location": "salesorder.details.button" ,
+        "name": "Customer Recipient Relationship",
         "url": "/app/widget.html",
         "logo": "/app/img/zoho-inventory.png"
       }
     ]
   },
-  "config": [],
-  "usedConnections": []
+  "config": [
+  ],
+  "usedConnections": [
+{
+	"connectionLinkName": "zoho_inventory_widget",
+	"connectionName": "zoho_inventory_widget",
+	"serviceName": "zlabs_integration",
+	"userAccess": true,
+	"isUserDefinedService": false,
+	"sharedBy": "881457739",
+	"scope": [
+		"ZohoInventory.contacts.CREATE",
+		"ZohoInventory.contacts.UPDATE",
+		"ZohoInventory.contacts.READ",
+		"ZohoInventory.items.CREATE",
+		"ZohoInventory.items.UPDATE",
+		"ZohoInventory.items.READ",
+		"ZohoInventory.salesorders.CREATE",
+		"ZohoInventory.salesorders.READ"
+	]
+}
+  ]
 }

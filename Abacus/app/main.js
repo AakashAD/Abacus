@@ -1,147 +1,72 @@
 /****************************
- * DROPDOWN DATA
- ****************************/
-const customers = ["Abacus Pvt Ltd - aakash.dubey@interconnecta.com", "Interconnecta", "Zoho Corp", "Demo Customer"];
-const contacts = ["Aakash Dubey", "Rahul Sharma", "Chris John", "Support Team"];
-const locations = ["Abacus HQ"];
-const paymentTerms = ["Due on Receipt", "Net 7", "Net 15", "Net 30"];
-const deliveryMethods = ["Courier", "Pickup", "Transport", "Self Delivery"];
-
-/****************************
- * INITIAL LOAD
+ * INIT
  ****************************/
 document.addEventListener("DOMContentLoaded", () => {
-  populateSelect(".row select", {
-    "Customer Name": customers,
-    "Contact Person": contacts,
-    "Location": locations,
-    "Payment Terms": paymentTerms,
-    "Delivery Method": deliveryMethods,
-    "Warehouse Location": locations
-  });
-
-  initLineItems();
-  initTotals();
-  calculateTotals(); // initial calc
+  bindAssociateButton();
 });
 
 /****************************
- * POPULATE DROPDOWNS
+ * POPULATE CONTACT DROPDOWN
  ****************************/
-function populateSelect(selector, dataMap) {
-  document.querySelectorAll(selector).forEach(select => {
-    const label = select.closest(".row")?.querySelector("label")?.innerText || "";
+function populateContactsFromAPI(contactPersons) {
+  const select = document.getElementById("contactSelect");
+  if (!select || !Array.isArray(contactPersons)) return;
 
-    Object.keys(dataMap).forEach(key => {
-      if (label.includes(key)) {
-        select.innerHTML = `<option value="">Select</option>`;
-        dataMap[key].forEach(v => {
-          const opt = document.createElement("option");
-          opt.value = v;
-          opt.textContent = v;
-          select.appendChild(opt);
-        });
-      }
-    });
+  select.innerHTML = `<option value="">Select Contact</option>`;
+
+  contactPersons.forEach(cp => {
+    // OPTIONAL: show only portal-enabled users
+    // if (!cp.is_added_in_portal) return;
+
+    const firstName = cp.first_name || "";
+    const lastName  = cp.last_name || "";
+    const email     = cp.email || "";
+
+    let label = `${firstName} ${lastName}`.trim();
+    if (email) label += ` - ${email}`;
+
+    // Skip empty rows
+    if (!label) return;
+
+    const option = document.createElement("option");
+    option.value = cp.contact_person_id; // IMPORTANT
+    option.textContent = label;
+
+    // Auto-select primary contact
+    if (cp.is_primary_contact === true) {
+      option.selected = true;
+    }
+
+    select.appendChild(option);
   });
 }
 
 /****************************
- * AMOUNT SANITIZER
+ * ASSOCIATE BUTTON
  ****************************/
-function sanitizeAmount(input) {
-  input.value = input.value
-    .replace(/[^0-9.-]/g, "")   // allow digits, dot, minus
-    .replace(/(?!^)-/g, "")     // minus only at start
-    .replace(/(\..*)\./g, "$1"); // single decimal
-}
+function bindAssociateButton() {
+  const btn = document.querySelector(".primary");
+  const select = document.getElementById("contactSelect");
 
-/****************************
- * LINE ITEMS
- ****************************/
-function initLineItems() {
-  document.querySelector(".item-actions button")
-    ?.addEventListener("click", addRow);
+  if (!btn || !select) return;
 
-  document.querySelector(".items tbody")
-    .addEventListener("input", e => {
-      if (e.target.tagName === "INPUT") {
-        sanitizeAmount(e.target);
-        calculateRow(e.target.closest("tr"));
-        calculateTotals();
-      }
-    });
+  btn.addEventListener("click", () => {
+    const selectedContactId = select.value;
 
-  document.querySelector(".items tbody")
-    .addEventListener("click", e => {
-      if (e.target.classList.contains("delete")) {
-        e.target.closest("tr").remove();
-        calculateTotals();
-      }
-    });
-}
+    if (!selectedContactId) {
+      alert("Please select a contact person");
+      return;
+    }
 
-function addRow() {
-  const tbody = document.querySelector(".items tbody");
-  const row = document.createElement("tr");
+    const selectedLabel =
+      select.options[select.selectedIndex].text;
 
-  row.innerHTML = `
-    <td class="item-cell">
-      <input class="item-name" placeholder="Type or click to select an item">
-      <textarea class="item-desc" placeholder="Description"></textarea>
-    </td>
-    <td><input class="amount-input" value="1"></td>
-    <td><input class="amount-input" value="0"></td>
-    <td><input class="amount-input" value="0"></td>
-    <td class="amount">0.00</td>
-    <td class="delete">✕</td>
-  `;
+    console.log("Selected Contact Person ID:", selectedContactId);
+    console.log("Selected Contact Label:", selectedLabel);
 
-  tbody.appendChild(row);
-}
-
-/****************************
- * CALCULATIONS
- ****************************/
-function calculateRow(row) {
-  const qty  = parseFloat(row.children[1].querySelector("input").value) || 0;
-  const rate = parseFloat(row.children[2].querySelector("input").value) || 0;
-  const disc = parseFloat(row.children[3].querySelector("input").value) || 0;
-
-  let amount = qty * rate;
-  amount -= (amount * disc) / 100;
-
-  row.querySelector(".amount").textContent = amount.toFixed(2);
-}
-
-function calculateTotals() {
-  let subtotal = 0;
-
-  document.querySelectorAll(".amount").forEach(a => {
-    subtotal += parseFloat(a.textContent) || 0;
-  });
-
-  // Sub Total
-  document.getElementById("subTotal").textContent = subtotal.toFixed(2);
-
-  // Shipping & Adjustment (PURE AMOUNT)
-  const shipping   = parseFloat(document.getElementById("shipping").value) || 0;
-  const adjustment = parseFloat(document.getElementById("adjustment").value) || 0;
-
-  // Grand Total (Adjustment INCLUDED)
-  const total = subtotal + shipping - adjustment;
-  document.getElementById("grandTotal").textContent = total.toFixed(2);
-}
-
-/****************************
- * TOTAL INPUT LISTENERS
- ****************************/
-function initTotals() {
-  ["shipping", "adjustment"].forEach(id => {
-    const el = document.getElementById(id);
-    el?.addEventListener("input", () => {
-      sanitizeAmount(el);
-      calculateTotals();
-    });
+    // 👉 NEXT STEP:
+    // Call Zoho Inventory API to associate contact person
+    // Example:
+    // associateContactToTransaction(selectedContactId);
   });
 }
